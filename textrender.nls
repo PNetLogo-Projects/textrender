@@ -1,0 +1,133 @@
+globals [
+  textrender-left-align
+  textrender-center-align
+  textrender-right-align
+]
+
+breed [textrenderturtles textrenderturtle]
+
+; Initializes the alignment constants and must be called before using them
+to textrender-init-constants
+  set textrender-left-align "left"
+  set textrender-center-align "center"
+  set textrender-right-align "right"
+end
+
+; Reports a list containing the name of the turtle shape for each character
+; Params:
+;     - string: string to split into characters
+to-report get-turtle-shapes [string]
+  let turtle-shapes-list []
+  let index 0
+  
+  while [index != (length string)]
+  [
+    let char (substring string index (index + 1))
+    if char = " "
+    [set char ""]
+    ifelse member? char "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    [set turtle-shapes-list (lput (word "_" char) turtle-shapes-list)]
+    [set turtle-shapes-list (lput char turtle-shapes-list)]
+    
+    set index (index + 1)
+  ]
+  report turtle-shapes-list
+end
+
+; Render string at specified coordinates.  (Observer Context)
+to simple-render-string [string coordinates turtle-size hue]
+  let turtle-shapes-list (get-turtle-shapes string)
+  let turtlex (item 0 coordinates)
+  let turtley (item 1 coordinates)
+  
+  let interval (turtle-size / 3)
+  let index 0
+  foreach turtle-shapes-list
+  [
+    turtle-shape ->
+    
+    create-textrenderturtles 1
+    [
+      set shape turtle-shape
+      setxy (turtlex + (interval * index)) turtley
+      set color hue
+      set size turtle-size
+      set hidden? false
+    ]
+    set index (index + 1)
+  ]
+end
+
+; Render string at specified coordinates and align the string with specified alignment.  (Observer Context)
+to simple-render-string-and-align [string bounding-coordinates turtle-size hue alignment]
+  let startx (item 0 bounding-coordinates)
+  let endx (item 1 bounding-coordinates)
+  let starty (item 2 bounding-coordinates)
+  let endy (item 3 bounding-coordinates)
+  
+  if  alignment = textrender-left-align
+  [simple-render-string string (list startx starty) turtle-size hue]
+  if alignment = textrender-center-align
+  [
+    let total-length (((length string) - 1) * (turtle-size / 3))
+    let new-startx (startx + ((endx - startx - total-length) / 2))
+    let new-starty (starty + ((endy - starty) / 2))
+    simple-render-string string (list new-startx new-starty) turtle-size hue
+  ]
+  if alignment = textrender-right-align
+  [
+    let total-length (((length string) - 1) * (turtle-size / 3))
+    let new-startx (endx - total-length)
+    let new-starty (starty + ((endy - starty) / 2))
+    simple-render-string string (list new-startx new-starty) turtle-size hue
+  ]
+end
+
+; Render string at specified coordinates.  (Turtle Context)
+to tsimple-render-string [string coordinates turtle-size hue]
+  let turtle-shapes-list (get-turtle-shapes string)
+  let turtlex (item 0 coordinates)
+  let turtley (item 1 coordinates)
+  
+  let interval (turtle-size / 3)
+  let index 0
+  foreach turtle-shapes-list
+  [
+    turtle-shape ->
+    
+    hatch-textrenderturtles 1
+    [
+      set shape turtle-shape
+      setxy (turtlex + (interval * index)) turtley
+      set color hue
+      set size turtle-size
+      set hidden? false
+    ]
+    set index (index + 1)
+  ]
+end
+
+; Render string at specified coordinates and align the string with specified alignment.  (Turtle Context)
+to tsimple-render-string-and-align [string bounding-coordinates turtle-size hue alignment]
+  let startx (item 0 bounding-coordinates)
+  let endx (item 1 bounding-coordinates)
+  let starty (item 2 bounding-coordinates)
+  let endy (item 3 bounding-coordinates)
+  
+  if  alignment = textrender-left-align
+  [tsimple-render-string string (list startx starty) turtle-size hue]
+  if alignment = textrender-center-align
+  [
+    let total-length (((length string) - 1) * (turtle-size / 3))
+    let new-startx (startx + ((endx - startx - total-length) / 2))
+    let new-starty (starty + ((endy - starty) / 2))
+    tsimple-render-string string (list new-startx new-starty) turtle-size hue
+  ]
+  if alignment = textrender-right-align
+  [
+    let total-length (((length string) - 1) * (turtle-size / 3))
+    let new-startx (endx - total-length)
+    let new-starty (starty + ((endy - starty) / 2))
+    tsimple-render-string string (list new-startx new-starty) turtle-size hue
+  ]
+end
